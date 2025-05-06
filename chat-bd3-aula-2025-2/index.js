@@ -36,7 +36,9 @@ io.on('connection', socket => {
     
       messages.push(data); // Adiciona a mensagem no array de mensagens
       socket.broadcast.emit('receivedMessage', data); // Envia a mensagem para todos os outros usuários conectados
+      console.log('QTD DE MENSAGENS ENVIADAS: ' + messages.length);
    })
+  
 });
 server.listen(3000, () => {
    console.log('CHAT RODANDO EM - http://localhost:3000');
