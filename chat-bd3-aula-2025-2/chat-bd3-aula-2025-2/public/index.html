@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CHAT MONGODB</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.8.1/socket.io.js"></script>
+</head>
+    <body>
+        <div class="container">
+              
+            <h1>##### app de Chat com MongoDB</h1>
+            <form id="chat">
+                <input type="text" name="username" id="username" placeholder="digite seu nome">
+                <br/>
+                <input type="text" name="message" id="message" placeholder="digite sua mensagem">
+                <br/>
+                <button type="submit">Enviar</button>
+
+                <div class="messages">
+
+                </div>
+            </form>
+        </div>
+        <script src="socket.io/socket.io.js"></script>
+        <script>
+            // conexão com o servidor
+
+            const socket = io('http://localhost:3000');
+            
+            //Função de renderização de mensagens no navegador
+
+            function renderMessage(message) {
+                $('.messages').append(
+                    `<div class="message"><strong>`+
+                        
+                        message.usuario+
+                        message.data_hora+
+                        '</strong>: ' +
+                        message.message
+
+                );
+            }
+
+            //Recupera as mensagens anteriores de todos os usuarios  exibe no navegador
+            socket.on('previousMessages', function(messages) {
+               
+                for (message of messages) {
+                    renderMessage(message);
+                }
+                
+            });
+            //Renderiza novas messagens enviadas por outros usuarios
+            socket.on('receivedMessage', function(message) {
+                renderMessage(message);
+            });
+            //cadastrar os dados de ususario e da mensagem do usuario
+            $('#chat').submit(function(event) {
+
+                event.preventDefault();
+                alert('deu certo!');
+                const username = $('#username').val();
+                // Recupera os dados de usuario
+                var usuario = $('input[name=username]').val();
+                var mensagem = $('input[name=message]').val();
+
+                console.log('usuario' +usuario);
+                console.log('mensagem' +mensagem);
+                //Data ehora de envio da mensagem
+                let data_hora_obj = new Date();
+                let data_hora_msg = `[ ${data_hora_obj.getDate()}/${data_hora_obj.getMonth()}/${data_hora_obj.getFullYear()}-/${data_hora_obj.getHours()}/${data_hora_obj.getMinutes()}/${data_hora_obj.getSeconds()}/ ]`
+                //Criação do objeto JSON da mensagem
+                var messageObject = {
+                    usuario: usuario,
+                    data_hora: data_hora_msg,
+                    message: mensagem
+                };
+                renderMessage(messageObject);
+                socket.emit('sendMessage', messageObject);
+                console.log('JSON' + JSON.stringify(messageObject));
+            });
+
+        </script>
+    </body>
+</html>
